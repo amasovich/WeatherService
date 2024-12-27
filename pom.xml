@@ -44,4 +44,18 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version> <!-- Совместим с Java 17 -->
+                <configuration>
+                    <source>17</source>  <!-- Исходный код на Java 17 -->
+                    <target>17</target>  <!-- Целевая версия Java 17 -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
