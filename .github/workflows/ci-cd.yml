@@ -32,6 +32,15 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin' # Используем Temurin JDK
 
+      - name: Check Maven version
+        run: mvn -v
+
+      - name: Install Maven
+        uses: s4u/maven-settings-action@v2
+
+      - name: Clean local repository
+        run: mvn dependency:purge-local-repository
+
       # Шаг 3: Сборка Maven проекта
       - name: Build project
         run: mvn clean install
