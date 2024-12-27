@@ -76,28 +76,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Архивирование файла JAR
-      - name: Archive JAR
-        run: tar -czvf app.tar.gz target/*.jar
-
-      # Отправка файла на сервер
-      - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.5
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: app.tar.gz
-          target: ~/my-app/
-
-      # Распаковка и перезапуск приложения
-      - name: Restart application
+      # Деплой через SSH
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
           script: |
             cd ~/my-app
-            tar -xzvf app.tar.gz
+            git pull origin master
             ./restart.sh
