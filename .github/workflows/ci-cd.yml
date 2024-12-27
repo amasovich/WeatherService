@@ -7,7 +7,7 @@ on:
       - master         # Следим за веткой master
   pull_request:        # Запускается при pull request
     branches:
-      - master         # Следим за pull request в ветку master
+      - master         # Следим за PR в ветку master
 
 # Описание задач
 jobs:
@@ -17,25 +17,27 @@ jobs:
     strategy:
       matrix:          # ОС и версии Java
         os: [ubuntu-latest, windows-latest, macos-latest]
-        java-version: [17]
-      fail-fast: false # Продолжить выполнение, даже если одна ОС упадёт
+        java-version: [17] # Старые версии не вставлял
+      fail-fast: false # Продолжить выполнение, если какая нибудь ОС упадёт(для отладки)
 
     # Шаги выполнения задачи
     steps:
-      # Шаг 1: Клонирование кода из репозитория
+      # Клонирование кода из репозитория
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Шаг 2: Установка JDK
+      # Установка JDK
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin' # Используем Temurin JDK
 
+      # Проверка версии Maven (опционально/для отладки)
       - name: Check Maven version
         run: mvn -v
 
+      # Установка Maven для Linux и MacOS
       - name: Install Maven (Linux/Mac)
         if: runner.os != 'Windows'
         run: |
@@ -43,7 +45,8 @@ jobs:
           tar -xvzf apache-maven-3.8.8-bin.tar.gz
           sudo mv apache-maven-3.8.8 /usr/local/apache-maven
           echo "export PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
-          
+
+      # Установка Maven для Windows
       - name: Install Maven (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -52,29 +55,22 @@ jobs:
           move apache-maven-3.8.8 "C:\apache-maven"
           echo "C:\apache-maven\bin" >> $GITHUB_ENV
 
-      - name: Print system info
-        run: |
-          uname -a
-          java -version
-          mvn -v
-
+      # Очистка локального репозитория Maven
       - name: Clean local repository
         run: mvn dependency:purge-local-repository
 
-      # Шаг 3: Сборка Maven проекта
+      # Сборка Maven проекта
       - name: Build project
         run: mvn clean install
-        continue-on-error: ${{ matrix.os == 'macos-latest' }}
 
-      # Шаг 4: Запуск Maven тестов
+      # Запуск Maven тестов
       - name: Run tests
         run: mvn test
-        continue-on-error: ${{ matrix.os == 'macos-latest' }}
 
   deploy:
     name: Deploy to Hosting
-    runs-on: ubuntu-latest
-    needs: build
+    runs-on: ubuntu-latest # Деплой выполняем на Linux
+    needs: build # Зависимость от успешной сборки
     steps:
       # Клонирование репозитория
       - name: Checkout code
@@ -84,8 +80,8 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.SSH_HOST }}              # IP-адрес моей виртуалки
-          username: ${{ secrets.SSH_USER }}          # Имя пользователя на моей виртуалке
+          host: ${{ secrets.SSH_HOST }}              # IP-адрес сервера
+          username: ${{ secrets.SSH_USER }}          # Имя пользователя
           key: ${{ secrets.SSH_PRIVATE_KEY }}        # Приватный ключ для подключения
           port: 22                                   # Порт SSH (по умолчанию 22)
           script: |
