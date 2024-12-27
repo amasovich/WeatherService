@@ -37,6 +37,8 @@ jobs:
 
       - name: Install Maven
         uses: s4u/maven-settings-action@v2
+        with:
+          maven-version: '3.8.7'
 
       - name: Clean local repository
         run: mvn dependency:purge-local-repository
