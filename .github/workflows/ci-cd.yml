@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }} # Платформы для выполнения
     strategy:
       matrix:          # ОС и версии Java
-        os: [ubuntu-22.04, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         java-version: [17]
       fail-fast: false # Продолжить выполнение, даже если одна ОС упадёт
 
