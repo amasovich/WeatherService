@@ -37,9 +37,17 @@ jobs:
         run: mvn -v
 
       - name: Install Maven
-        uses: s4u/maven-settings-action@v2
-        with:
-          maven-version: '3.8.7'
+        run: |
+          curl -o apache-maven-3.8.8-bin.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz
+          tar -xvzf apache-maven-3.8.8-bin.tar.gz
+          sudo mv apache-maven-3.8.8 /usr/local/apache-maven
+          echo "export PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Print system info
+        run: |
+          uname -a
+          java -version
+          mvn -v
 
       - name: Clean local repository
         run: mvn dependency:purge-local-repository
