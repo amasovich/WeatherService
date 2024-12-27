@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }} # Платформы для выполнения
     strategy:
       matrix:          # ОС и версии Java
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-22.04, windows-latest, macos-latest]
         java-version: [11, 17]
       fail-fast: false # Продолжить выполнение, даже если одна ОС упадёт
 
@@ -24,7 +24,7 @@ jobs:
     steps:
       # Шаг 1: Клонирование кода из репозитория
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Шаг 2: Установка JDK
       - name: Set up JDK
@@ -73,7 +73,7 @@ jobs:
 
       # Деплой через SSH
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.SSH_HOST }}              # IP-адрес моей виртуалки
           username: ${{ secrets.SSH_USER }}          # Имя пользователя на моей виртуалке
