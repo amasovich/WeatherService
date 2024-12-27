@@ -36,12 +36,21 @@ jobs:
       - name: Check Maven version
         run: mvn -v
 
-      - name: Install Maven
+      - name: Install Maven (Linux/Mac)
+        if: runner.os != 'Windows'
         run: |
           curl -o apache-maven-3.8.8-bin.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz
           tar -xvzf apache-maven-3.8.8-bin.tar.gz
           sudo mv apache-maven-3.8.8 /usr/local/apache-maven
           echo "export PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
+          
+      - name: Install Maven (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          curl -o apache-maven-3.8.8-bin.zip https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.zip
+          tar -xf apache-maven-3.8.8-bin.zip
+          move apache-maven-3.8.8 "C:\apache-maven"
+          echo "C:\apache-maven\bin" >> $GITHUB_ENV
 
       - name: Print system info
         run: |
