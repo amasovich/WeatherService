@@ -1,0 +1,62 @@
+name: Java CI/CD
+
+# События
+on:
+  push:                # Запускается при пуше в указанные ветки
+    branches:
+      - master         # Следим за веткой master
+  pull_request:        # Запускается при pull request
+    branches:
+      - master         # Следим за pull request в ветку master
+
+# Описание задач
+jobs:
+  build:             
+    name: Build and Test
+    runs-on: ${{ matrix.os }} # Платформы для выполнения
+    strategy:
+      matrix:          # ОС и версии Java
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        java-version: [11, 17]
+
+    # Шаги выполнения задачи
+    steps:
+      # Шаг 1: Клонирование кода из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Шаг 2: Установка JDK
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java-version }}
+
+      # Шаг 3: Сборка Maven проекта
+      - name: Build project
+        run: mvn clean install
+
+      # Шаг 4: Запуск Maven тестов
+      - name: Run tests
+        run: mvn test
+
+  deploy:
+    name: Deploy to Hosting
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # Клонирование репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Деплой через SSH
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}              # IP-адрес моей виртуалки
+          username: ${{ secrets.SSH_USER }}          # Имя пользователя на моей виртуалке
+          key: ${{ secrets.SSH_PRIVATE_KEY }}        # Приватный ключ для подключения
+          port: 22                                   # Порт SSH (по умолчанию 22)
+          script: |
+            cd /path/to/deployment                   # Путь к директории деплоя на сервере
+            git pull origin master                   # Обновление с репозитория
+            ./restart.sh                             # Перезапуск приложения
